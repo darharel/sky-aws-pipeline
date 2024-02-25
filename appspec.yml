@@ -1,0 +1,6 @@
+version: 0.0
+os: linux
+hooks:
+  ApplicationStart:
+    - location: app-start.sh
+timeout: 00

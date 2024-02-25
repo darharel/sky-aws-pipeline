@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title> APP</title></head>
+
+    <body>
+        <div>
+            <form method="post">
+                <h2>Enter A City to Check Weather:</h2>
+                <input type="text" name="search_query" required>
+                <button type="submit">Search</button>
+            </form>
+             {% if weather and weather.error_message %}
+                <p style="color: red;">{{ weather.error_message }}</p>
+              {% elif weather and weather.city %}
+                <h4>{{weather.city}} {{weather.country}}</h4>
+                <br>
+                <div style="display: flex;">
+                    {% for day in weather.days %}
+                        <div>
+                            <h4>{{ day.week_day }}</h4>
+                            <p>{{ day.date[5:] }}</p>
+                            <p>☀️: {{ day.max_temp }}°C</p>
+                            <p>🌙: {{ day.min_temp }}°C</p>
+                            <p>💧: {{ day.humidity }}%</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div>
+                <form action="/download_image" method="get">
+                    <button type="submit">Download Sky Image</button>
+                </form>
+                <br/>
+                 <form action="/send_to_dynamodb" method="post">
+                    <input type="submit" value="send_to_dynamodb">
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,38 @@
+version: 0.2
+
+phases:
+  install:  
+    commands:
+      - apt update -y
+      - apt install -y docker.io
+      - docker --version
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 235157028428.dkr.ecr.eu-central-1.amazonaws.com
+      - REPOSITORY_URI=235157028428.dkr.ecr.eu-central-1.amazonaws.com/sky
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+
+  build: 
+    commands: 
+    - echo Build started on date 
+    - echo Building the Docker image...
+    - docker build -t skykapp:$COMMIT_HASH .
+    - docker tag skykapp:$COMMIT_HASH 235157028428.dkr.ecr.eu-central-1.amazonaws.com/sky:latest
+    
+  post_build:
+    commands: 
+    - echo Build completed on date 
+    - echo pushing to repo
+    # update the following line with the URI of your own ECR repository
+    - docker push 235157028428.dkr.ecr.eu-central-1.amazonaws.com/sky:latest
+    - echo Writing image definitions file... 
+    #- printf '[{"ImageURI":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+    - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+artifacts:
+  files:
+    - compose.yaml
+    - appspec.yml
+    - app-start.sh
